@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/audioListFragment">
+    app:startDestination="@id/recordFragment">
 
     <fragment
         android:id="@+id/audioListFragment"
@@ -14,5 +14,13 @@
         android:id="@+id/recordFragment"
         android:name="com.vkpriesniakov.voicerecorder.RecordFragment"
         android:label="fragment_record"
-        tools:layout="@layout/fragment_record" />
+        tools:layout="@layout/fragment_record" >
+        <action
+            android:id="@+id/action_recordFragment_to_audioListFragment"
+            app:destination="@id/audioListFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
+    </fragment>
 </navigation>

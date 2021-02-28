@@ -21,7 +21,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:fontFamily="@font/open_sans_semibold"
         android:text="Press the mic button \nto start recording"
@@ -37,7 +37,7 @@
         android:id="@+id/record_timer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="24dp"
         android:fontFamily="@font/open_sans_light"
         android:textSize="64sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,24 +46,29 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/record_fab"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:background="@color/colorPrimary"
-        android:clickable="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitCenter"
         android:src="@drawable/ic_start_record"
+        app:backgroundTint="@color/purple_200"
+        app:borderWidth="0dp"
+        app:fabCustomSize="72dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/record_timer" />
+        app:layout_constraintTop_toBottomOf="@+id/record_timer"
+        app:maxImageSize="40dp"
+        app:tint="@color/white" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/record_list_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:padding="16dp"
         android:src="@drawable/ic_baseline_lrecord_list_icon"
         app:layout_constraintBottom_toBottomOf="@+id/record_fab"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="16dp"
         app:layout_constraintStart_toEndOf="@+id/record_fab"
         app:layout_constraintTop_toTopOf="@+id/record_fab" />
 
