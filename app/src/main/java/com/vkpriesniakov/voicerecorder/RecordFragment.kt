@@ -1,7 +1,9 @@
 package com.vkpriesniakov.voicerecorder
 
-import android.content.res.ColorStateList
+import android.content.Context
+import android.media.MediaRecorder
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,17 +13,25 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.vkpriesniakov.voicerecorder.databinding.FragmentRecordBinding
+import com.vkpriesniakov.voicerecorder.utils.FloatingButtonAnimator
 import com.vkpriesniakov.voicerecorder.utils.RECORD_PERMISSION
-import com.vkpriesniakov.voicerecorder.utils.ROTATION_ANGLE
 import com.vkpriesniakov.voicerecorder.utils.Utils
 import com.vkpriesniakov.voicerecorder.utils.Utils.Companion.checkIfPermissionGranted
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class RecordFragment : Fragment(), View.OnClickListener {
 
     private lateinit var mNavController: NavController
+    private lateinit var mRecordFile: String
     private var mIsRecording: Boolean = false
     private var mPermissionAllowed = false
+    private var mMediaRecorder: MediaRecorder? = null
+    private lateinit var mFabAnimator: FloatingButtonAnimator
 
     private var _binding: FragmentRecordBinding? = null
 
@@ -34,7 +44,7 @@ class RecordFragment : Fragment(), View.OnClickListener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentRecordBinding.inflate(inflater, container, false)
         return bdn.root
     }
@@ -43,6 +53,7 @@ class RecordFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
         mPermissionAllowed = checkIfPermissionGranted(context)
         mNavController = Navigation.findNavController(view)
+        mFabAnimator = FloatingButtonAnimator(bdn.recordFab, context as Context)
         bdn.recordListButton.setOnClickListener(this)
         bdn.recordFab.setOnClickListener(this)
     }
@@ -52,27 +63,66 @@ class RecordFragment : Fragment(), View.OnClickListener {
             R.id.record_list_button -> mNavController.navigate(R.id.action_recordFragment_to_audioListFragment)
             R.id.record_fab -> {
                 if (mIsRecording) {
-                    //Stop record
-                    setAnimation(
-                        1f, R.drawable.ic_start_record,
-                        R.color.white, R.color.purple_200,
-                        ROTATION_ANGLE
-                    )
+
+                    stopRecording()
+                    mFabAnimator.startStopAnimation()
+
                     mIsRecording = false
                 } else {
                     if (checkPermission()) {
-                        setAnimation(
-                            1.2f, R.drawable.ic_baseline_stop_24,
-                            R.color.colorPrimary, R.color.colowDarkBlue,
-                            -ROTATION_ANGLE
-                        )
 
-                        //TODO: Start record
+                        startRecording()
+                        mFabAnimator.startPlayAnimation()
 
                         mIsRecording = true
                     }
                 }
             }
+        }
+    }
+
+    private fun startRecording() {
+
+        bdn.recordTimer.base = SystemClock.elapsedRealtime()
+        bdn.recordTimer.start()
+
+        val recordPath = activity?.getExternalFilesDir("/")?.absolutePath
+        val formatter = SimpleDateFormat(
+            "yyyy_MM_dd_hh_mm_ss",
+            Locale.getDefault()
+        )
+        val currentDate = Date()
+        mRecordFile = "record_${formatter.format(currentDate)}.3gp"
+        mMediaRecorder = MediaRecorder().apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            setOutputFile("$recordPath/$mRecordFile")
+            setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            prepare()
+            start()
+        }
+        bdn.recordFilenameText.text = "Recording file: $mRecordFile"
+        delayFloatingButton()
+    }
+
+    private fun stopRecording() {
+        bdn.recordTimer.stop()
+        mMediaRecorder?.apply {
+            stop()
+            release()
+        }
+        mMediaRecorder = null
+        bdn.recordFilenameText.text = "Recording stopped, saved: $mRecordFile"
+        delayFloatingButton()
+    }
+
+    private fun delayFloatingButton(delayTime: Long = 1000L) {
+        // delay for second to prevent MediaRecorder stop error,
+        // when user is fast clicking on floating button
+        bdn.recordFab.isClickable = false
+        GlobalScope.launch {
+            delay(delayTime)
+            bdn.recordFab.isClickable = true
         }
     }
 
@@ -104,36 +154,5 @@ class RecordFragment : Fragment(), View.OnClickListener {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             mPermissionAllowed = checkIfPermissionGranted(context)
         }
-
-    private fun setAnimation(
-        scale: Float,
-        icon: Int,
-        colorFilter: Int,
-        background: Int,
-        rotation: Float
-    ) {
-        bdn.recordFab.animate()
-            .rotationBy(rotation)
-            .setDuration(100)
-            .scaleX(0.7f)
-            .scaleY(0.7f)
-            .withEndAction {
-                bdn.recordFab.setImageResource(icon) // setting other icon
-                bdn.recordFab.setColorFilter(getResources().getColor(colorFilter))
-                bdn.recordFab.backgroundTintList = ColorStateList.valueOf(
-                    getResources().getColor(
-                        background
-                    )
-                )
-                //Shrink Animation
-                bdn.recordFab.animate()
-                    .rotationBy(rotation) //Complete the rest of the rotation
-                    .setDuration(100)
-                    .scaleX(scale) //Scaling back to what it was
-                    .scaleY(scale)
-                    .start()
-            }
-            .start()
-    }
 
 }
