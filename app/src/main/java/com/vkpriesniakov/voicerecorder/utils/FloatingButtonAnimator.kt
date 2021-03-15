@@ -7,9 +7,9 @@ import com.vkpriesniakov.voicerecorder.R
 
 interface AnimationControl {
 
-    fun startPlayAnimation()
+    fun startPlayAnimation(fab: FloatingActionButton)
 
-    fun startStopAnimation()
+    fun startStopAnimation(fab: FloatingActionButton)
 
     fun defaultAnimation(
         scale: Float,
@@ -23,7 +23,6 @@ interface AnimationControl {
 }
 
 class FloatingButtonAnimator(
-    private val fab: FloatingActionButton,
     private val context: Context
 ) : AnimationControl {
 
@@ -61,17 +60,17 @@ class FloatingButtonAnimator(
             .start()
     }
 
-    override fun startPlayAnimation() {
+    override fun startPlayAnimation(fab:FloatingActionButton) {
         defaultAnimation(
             1.2f, R.drawable.ic_baseline_stop_24,
-            R.color.colorPrimary, R.color.colowDarkBlue,
+            R.color.colorPrimary, R.color.colorDarkBlue,
             -ROTATION_ANGLE,
             fab,
             context
         )
     }
 
-    override fun startStopAnimation() {
+    override fun startStopAnimation(fab:FloatingActionButton) {
         defaultAnimation(
             1f, R.drawable.ic_start_record,
             R.color.white, R.color.purple_200,

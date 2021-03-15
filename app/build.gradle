@@ -4,6 +4,15 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        mainConfig {
+            storeFile file('D:\\AndroidStudioProjects\\VoiceRecorder\\keymain.jks')
+            storePassword '123456'
+            keyPassword '123456'
+            keyAlias 'key0'
+        }
+    }
+
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
@@ -19,14 +28,47 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            applicationIdSuffix ".release"
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            versionNameSuffix '-release'
+            signingConfig signingConfigs.mainConfig
+        }
+
+        debug{
+            applicationIdSuffix ".debug"
+            debuggable true
+            minifyEnabled false
+            versionNameSuffix '-debug'
+            signingConfig signingConfigs.mainConfig
         }
     }
+
+    flavorDimensions "version"
+
+    productFlavors{
+        dev{
+            dimension "version"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+            signingConfig signingConfigs.mainConfig
+
+        }
+
+        prod{
+            dimension "version"
+            applicationIdSuffix ".prod"
+            versionNameSuffix "-prod"
+            signingConfig signingConfigs.mainConfig
+        }
+
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
