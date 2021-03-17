@@ -63,11 +63,6 @@ class RecordFragment : Fragment(), View.OnClickListener {
         bdn.recordListButton.setOnClickListener(this)
         bdn.recordFab.setOnClickListener(this)
 
-
-        val badgeDrw = BadgeDrawable.create(requireContext()) //TODO: Check badge implementation
-        badgeDrw.setVisible(true)
-        badgeDrw.number = 6
-        BadgeUtils.attachBadgeDrawable(badgeDrw, bdn.recordFab)
     }
 
     override fun onClick(v: View?) {
