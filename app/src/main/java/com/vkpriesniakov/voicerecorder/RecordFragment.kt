@@ -1,7 +1,6 @@
 package com.vkpriesniakov.voicerecorder
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,13 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.graphics.Color
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import com.google.android.material.badge.BadgeDrawable
-import com.google.android.material.badge.BadgeUtils
 import com.vkpriesniakov.voicerecorder.databinding.FragmentRecordBinding
 import com.vkpriesniakov.voicerecorder.utils.FloatingButtonAnimator
 import com.vkpriesniakov.voicerecorder.utils.RECORD_PERMISSION
@@ -23,19 +19,25 @@ import com.vkpriesniakov.voicerecorder.utils.RecordController
 import com.vkpriesniakov.voicerecorder.utils.Utils
 import com.vkpriesniakov.voicerecorder.utils.Utils.Companion.checkIfPermissionGranted
 import kotlinx.coroutines.launch
+import org.kodein.di.DIAware
+import org.kodein.di.android.x.closestDI
+import org.kodein.di.instance
 
 
-class RecordFragment : Fragment(), View.OnClickListener {
+class RecordFragment : Fragment(), View.OnClickListener, DIAware {
 
-//    val mFabKodein:FloatingButtonAnimator by instance()
+    override val di by closestDI()
+
 
     private lateinit var mNavController: NavController
     private lateinit var mRecordFile: String
     private var mIsRecording: Boolean = false
     private var mPermissionAllowed = false
-    private lateinit var mRecordController: RecordController
+
+    private val mRecordController: RecordController by instance()
+
     private var mMediaRecorder: MediaRecorder? = null
-    private lateinit var mFabAnimator: FloatingButtonAnimator
+    private val mFabAnimator: FloatingButtonAnimator by instance()
 
     private var _binding: FragmentRecordBinding? = null
 
@@ -56,10 +58,8 @@ class RecordFragment : Fragment(), View.OnClickListener {
     @SuppressLint("UnsafeExperimentalUsageError")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mPermissionAllowed = checkIfPermissionGranted(context) //make a Koin
-        mRecordController = RecordController()  //make a Koin
-        mNavController = Navigation.findNavController(view)  //make a Koin
-        mFabAnimator = FloatingButtonAnimator(context as Context)  //make a Koin
+        mPermissionAllowed = checkIfPermissionGranted(context)
+        mNavController = Navigation.findNavController(view)
         bdn.recordListButton.setOnClickListener(this)
         bdn.recordFab.setOnClickListener(this)
 

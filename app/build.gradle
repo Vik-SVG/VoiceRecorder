@@ -89,7 +89,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     //Kodein
-    implementation 'org.kodein.di:kodein-di-framework-android-x:7.3.1'
+    implementation 'org.kodein.di:kodein-di-framework-android-x:7.4.0'
+    implementation 'org.kodein.di:kodein-di:7.4.0'
 
     implementation 'com.google.android.material:material:1.4.0-alpha01'
 
