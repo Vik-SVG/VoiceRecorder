@@ -6,12 +6,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.vkpriesniakov.voicerecorder.databinding.FragmentAudioListBinding
-import com.vkpriesniakov.voicerecorder.databinding.FragmentRecordBinding
 import java.io.File
 
 
@@ -27,7 +26,7 @@ class AudioListFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentAudioListBinding.inflate(inflater, container, false)
         return bdn.root
@@ -39,7 +38,10 @@ class AudioListFragment : Fragment() {
         val path: String = activity?.getExternalFilesDir("/")?.absolutePath ?: ""
         val directory = File(path)
         mAllFiles = directory.listFiles()
-        mAudioListAdapter = AudioListAdapter(mAllFiles, context as Context)
+        mAudioListAdapter =
+            AudioListAdapter(mAllFiles, context as Context, callback = { file, position ->
+                Toast.makeText(requireContext(), "$position click", Toast.LENGTH_SHORT).show()
+            })
 
         bdn.audioListView.apply {
             setHasFixedSize(true)

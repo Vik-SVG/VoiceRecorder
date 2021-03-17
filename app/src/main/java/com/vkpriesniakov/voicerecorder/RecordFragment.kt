@@ -1,5 +1,6 @@
 package com.vkpriesniakov.voicerecorder
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaRecorder
 import android.os.Bundle
@@ -8,10 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.graphics.Color
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.google.android.material.badge.BadgeDrawable
+import com.google.android.material.badge.BadgeUtils
 import com.vkpriesniakov.voicerecorder.databinding.FragmentRecordBinding
 import com.vkpriesniakov.voicerecorder.utils.FloatingButtonAnimator
 import com.vkpriesniakov.voicerecorder.utils.RECORD_PERMISSION
@@ -22,6 +26,8 @@ import kotlinx.coroutines.launch
 
 
 class RecordFragment : Fragment(), View.OnClickListener {
+
+//    val mFabKodein:FloatingButtonAnimator by instance()
 
     private lateinit var mNavController: NavController
     private lateinit var mRecordFile: String
@@ -47,6 +53,7 @@ class RecordFragment : Fragment(), View.OnClickListener {
         return bdn.root
     }
 
+    @SuppressLint("UnsafeExperimentalUsageError")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mPermissionAllowed = checkIfPermissionGranted(context) //make a Koin
@@ -55,13 +62,19 @@ class RecordFragment : Fragment(), View.OnClickListener {
         mFabAnimator = FloatingButtonAnimator(context as Context)  //make a Koin
         bdn.recordListButton.setOnClickListener(this)
         bdn.recordFab.setOnClickListener(this)
+
+
+        val badgeDrw = BadgeDrawable.create(requireContext()) //TODO: Check badge implementation
+        badgeDrw.setVisible(true)
+        badgeDrw.number = 6
+        BadgeUtils.attachBadgeDrawable(badgeDrw, bdn.recordFab)
     }
 
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.record_list_button -> mNavController.navigate(R.id.action_recordFragment_to_audioListFragment)
             R.id.record_fab -> {
-                this.lifecycleScope.launch{
+                this.lifecycleScope.launch {
                     makeRecord()
                 }
             }
@@ -84,7 +97,9 @@ class RecordFragment : Fragment(), View.OnClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        mRecordController.stopRecording(bdn)
+        if (mIsRecording) {
+            mRecordController.stopRecording(bdn)
+        }
         mIsRecording = false
     }
 
