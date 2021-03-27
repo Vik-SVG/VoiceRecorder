@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.vkpriesniakov.voicerecorder.R
 
+
 interface AnimationControl {
 
     fun startPlayAnimation(fab: FloatingActionButton)
@@ -22,8 +23,8 @@ interface AnimationControl {
     )
 }
 
-class FloatingButtonAnimator(
-    private val context: Context
+class FloatingButtonAnimator
+    (val context: Context
 ) : AnimationControl {
 
     override fun defaultAnimation(

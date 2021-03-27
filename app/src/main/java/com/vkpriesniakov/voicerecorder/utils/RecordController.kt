@@ -5,31 +5,35 @@ import android.os.SystemClock
 import android.widget.Chronometer
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.vkpriesniakov.voicerecorder.databinding.FragmentRecordBinding
+import dagger.hilt.android.scopes.FragmentScoped
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.coroutines.coroutineContext
+import javax.inject.Inject
 
 interface RecordControllerInterface {
     fun startRecording(bdn: FragmentRecordBinding)
     fun stopRecording(bdn: FragmentRecordBinding)
-    fun startingDelay(delayTime: Long, recordFab:FloatingActionButton)
-    fun startTimer(recordTimer:Chronometer)
-    fun stopTimer(recordTimer:Chronometer)
+    fun startingDelay(delayTime: Long, recordFab: FloatingActionButton)
+    fun startTimer(recordTimer: Chronometer)
+    fun stopTimer(recordTimer: Chronometer)
 }
 
-class RecordController : RecordControllerInterface {
+@FragmentScoped
+class RecordController @Inject constructor() : RecordControllerInterface {
 
-    private var mMediaRecorder:MediaRecorder?
-    private var mRecordFile:String?
+
+    @Inject
+    lateinit var mMediaRecorder: WeakReference<MediaRecorder>
+
+    var mRecordFile: String?
+
     init {
-        mMediaRecorder = MediaRecorder()
         mRecordFile = ""
     }
-
 
 
     override fun startRecording(bdn: FragmentRecordBinding) {
@@ -41,7 +45,7 @@ class RecordController : RecordControllerInterface {
         )
         val currentDate = Date()
         mRecordFile = "record_${formatter.format(currentDate)}.3gp"
-        mMediaRecorder?.apply {
+        mMediaRecorder.get()?.apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             setOutputFile("$recordPath/$mRecordFile")
@@ -55,16 +59,18 @@ class RecordController : RecordControllerInterface {
 
     override fun stopRecording(bdn: FragmentRecordBinding) {
         stopTimer(bdn.recordTimer)
-        mMediaRecorder?.apply {
+        mMediaRecorder.get()?.apply {
             stop()
             release()
         }
-        mMediaRecorder = null
+        mMediaRecorder.clear()
+
+
         bdn.recordFilenameText.text = "Recording stopped, saved: $mRecordFile"
-        startingDelay(1000L,bdn.recordFab)
+        startingDelay(1000L, bdn.recordFab)
     }
 
-    override fun startingDelay(delayTime: Long, recordFab:FloatingActionButton) {
+    override fun startingDelay(delayTime: Long, recordFab: FloatingActionButton) {
         // delay for second to prevent MediaRecorder stop error,
         // when user is fast clicking on floating button
         recordFab.isClickable = false
@@ -74,12 +80,12 @@ class RecordController : RecordControllerInterface {
         }
     }
 
-    override fun startTimer(recordTimer:Chronometer) {
+    override fun startTimer(recordTimer: Chronometer) {
         recordTimer.base = SystemClock.elapsedRealtime()
         recordTimer.start()
     }
 
-    override fun stopTimer(recordTimer:Chronometer) {
+    override fun stopTimer(recordTimer: Chronometer) {
         recordTimer.stop()
     }
 }
