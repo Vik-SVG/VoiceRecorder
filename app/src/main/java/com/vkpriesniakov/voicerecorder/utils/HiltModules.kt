@@ -1,14 +1,17 @@
 package com.vkpriesniakov.voicerecorder.utils
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.FragmentComponent
+import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.FragmentScoped
-import java.lang.ref.WeakReference
+import java.io.File
+import javax.inject.Qualifier
 
 
 @Module
@@ -17,17 +20,28 @@ object BaseModule {
 
     @FragmentScoped
     @Provides
-    fun provideFabAnimator(@ApplicationContext context: Context): AnimationControl {
-        return FloatingButtonAnimator(context)
-    }
-
+    fun provideFabAnimator(@ApplicationContext context: Context): AnimationControl =
+        FloatingButtonAnimator(context)
 
     @FragmentScoped
     @Provides
-    fun provideMediaRec(): WeakReference<MediaRecorder> {
-        return WeakReference(MediaRecorder())
+    fun provideAllFiles(@ActivityContext activity: Context): Array<out File> {
+        val path: String = activity.getExternalFilesDir("/")?.absolutePath ?: "/"
+        return File(path).listFiles()
     }
 
+    @Provides
+    fun provideMediaPlayer() = MediaPlayer()
+
+    @Provides
+    fun provideMediaRec(): MediaRecorder = MediaRecorder()
+
+
+/*
+    @Provides
+    fun provideTimeAgo():TimeAgo{
+        return TimeAgo()
+    }*/
 }
 
 /*@Module
@@ -38,3 +52,7 @@ abstract class mediaProvider{
     @Binds
     abstract fun provideMediaRecorder(mediaRecorder: MediaRecorder):MediaRecorder
 }*/
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class PermissionBinder

@@ -3,7 +3,8 @@ package com.vkpriesniakov.voicerecorder.utils
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class TimeAgo {
+class TimeAgo  {
+
     fun getTimeAgo(
         duration: Long
     ): String {

@@ -5,11 +5,9 @@ import android.os.SystemClock
 import android.widget.Chronometer
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.vkpriesniakov.voicerecorder.databinding.FragmentRecordBinding
-import dagger.hilt.android.scopes.FragmentScoped
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -22,12 +20,12 @@ interface RecordControllerInterface {
     fun stopTimer(recordTimer: Chronometer)
 }
 
-@FragmentScoped
+
 class RecordController @Inject constructor() : RecordControllerInterface {
 
 
     @Inject
-    lateinit var mMediaRecorder: WeakReference<MediaRecorder>
+    lateinit var mMediaRecorder: MediaRecorder
 
     var mRecordFile: String?
 
@@ -45,11 +43,12 @@ class RecordController @Inject constructor() : RecordControllerInterface {
         )
         val currentDate = Date()
         mRecordFile = "record_${formatter.format(currentDate)}.3gp"
-        mMediaRecorder.get()?.apply {
+
+        mMediaRecorder.apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-            setOutputFile("$recordPath/$mRecordFile")
             setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            setOutputFile("$recordPath/$mRecordFile")
             prepare()
             start()
         }
@@ -59,11 +58,11 @@ class RecordController @Inject constructor() : RecordControllerInterface {
 
     override fun stopRecording(bdn: FragmentRecordBinding) {
         stopTimer(bdn.recordTimer)
-        mMediaRecorder.get()?.apply {
+        mMediaRecorder.apply {
             stop()
-            release()
+            reset()
+//            release()
         }
-        mMediaRecorder.clear()
 
 
         bdn.recordFilenameText.text = "Recording stopped, saved: $mRecordFile"

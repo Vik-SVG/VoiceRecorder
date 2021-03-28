@@ -8,13 +8,16 @@ import com.vkpriesniakov.voicerecorder.databinding.SingleListItemBinding
 import com.vkpriesniakov.voicerecorder.utils.TimeAgo
 import java.io.File
 
-class AudioListAdapter(
+class AudioListAdapter (
     private val allFiles: Array<out File>?,
     context: Context,
     private val callback: (File, Int) -> Unit
 ) :
     RecyclerView.Adapter<AudioListAdapter.AudioViewHolder>() {
     private val inflater = LayoutInflater.from(context)
+
+//    @Inject lateinit var timeAgo:TimeAgo
+
     val timeAgo = TimeAgo()
 
     inner class AudioViewHolder(private val bdnView: SingleListItemBinding) :

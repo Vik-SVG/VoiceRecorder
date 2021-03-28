@@ -1,7 +1,6 @@
 package com.vkpriesniakov.voicerecorder
 
 import android.annotation.SuppressLint
-import android.media.MediaRecorder
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,8 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import com.google.android.material.badge.BadgeDrawable
-import com.google.android.material.badge.BadgeUtils
 import com.vkpriesniakov.voicerecorder.databinding.FragmentRecordBinding
 import com.vkpriesniakov.voicerecorder.utils.*
 import com.vkpriesniakov.voicerecorder.utils.Utils.Companion.checkIfPermissionGranted
@@ -22,18 +19,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RecordFragment : Fragment(), View.OnClickListener {
+class RecordFragment : BaseFragment(), View.OnClickListener {
 
 
     @Inject lateinit var recordController:RecordController
     @Inject lateinit var floatingButtonAnimator:AnimationControl
 
 
-    private lateinit var mNavController: NavController
+
     private lateinit var mRecordFile: String
     private var mIsRecording: Boolean = false
     private var mPermissionAllowed = false
-    private var mMediaRecorder: MediaRecorder? = null
 
     private var _binding: FragmentRecordBinding? = null
 
@@ -54,21 +50,16 @@ class RecordFragment : Fragment(), View.OnClickListener {
     @SuppressLint("UnsafeExperimentalUsageError")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mPermissionAllowed = checkIfPermissionGranted(context) //make a Koin
-        mNavController = Navigation.findNavController(view)  //make a Koin
+        mPermissionAllowed = checkIfPermissionGranted(context)
         bdn.recordListButton.setOnClickListener(this)
         bdn.recordFab.setOnClickListener(this)
 
 
-        val badgeDrw = BadgeDrawable.create(requireContext()) //TODO: Check badge implementation
-        badgeDrw.setVisible(true)
-        badgeDrw.number = 6
-        BadgeUtils.attachBadgeDrawable(badgeDrw, bdn.recordFab)
     }
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.record_list_button -> mNavController.navigate(R.id.action_recordFragment_to_audioListFragment)
+            R.id.record_list_button -> mainNavigator.navigate(R.id.action_recordFragment_to_audioListFragment)
             R.id.record_fab -> {
                 this.lifecycleScope.launch {
                     makeRecord()
@@ -86,7 +77,6 @@ class RecordFragment : Fragment(), View.OnClickListener {
             if (checkPermission()) {
                 recordController.startRecording(bdn)
                 floatingButtonAnimator.startPlayAnimation(bdn.recordFab)
-//                mFabAnimator.startPlayAnimation(bdn.recordFab)
                 mIsRecording = true
             }
         }
@@ -94,6 +84,14 @@ class RecordFragment : Fragment(), View.OnClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (mIsRecording) {
+            recordController.stopRecording(bdn)
+        }
+        mIsRecording = false
+    }
+
+    override fun onStop() {
+        super.onStop()
         if (mIsRecording) {
             recordController.stopRecording(bdn)
         }

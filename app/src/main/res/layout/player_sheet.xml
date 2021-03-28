@@ -9,7 +9,7 @@
     android:background="@drawable/player_bg">
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/sheet_linear_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/media_player_bg"
@@ -66,7 +66,7 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/sheet_linear_layout" />
 
     <ImageButton
         android:id="@+id/play_button_sheet"
@@ -105,6 +105,7 @@
         app:srcCompat="@drawable/ic_baseline_fast_forward_24" />
 
     <SeekBar
+        android:id="@+id/player_seekbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="32dp"
