@@ -1,8 +1,11 @@
-package com.vkpriesniakov.voicerecorder.utils
+package com.vkpriesniakov.voicerecorder.di
 
 import android.content.Context
 import android.media.MediaPlayer
 import android.media.MediaRecorder
+import com.vkpriesniakov.voicerecorder.utils.AnimationControl
+import com.vkpriesniakov.voicerecorder.utils.FloatingButtonAnimator
+import com.vkpriesniakov.voicerecorder.utils.TimeAgo
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,7 +34,10 @@ object BaseModule {
     }
 
     @Provides
-    fun provideMediaPlayer() = MediaPlayer()
+    fun provideMediaPlayer():MediaPlayer = MediaPlayer()
+
+    @Provides
+    fun provideTimeAgo():TimeAgo = TimeAgo()
 
     @Provides
     fun provideMediaRec(): MediaRecorder = MediaRecorder()

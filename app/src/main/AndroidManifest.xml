@@ -11,7 +11,7 @@
         android:roundIcon="@mipmap/ic_voice_app_icon_main_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.VoiceRecorder">
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

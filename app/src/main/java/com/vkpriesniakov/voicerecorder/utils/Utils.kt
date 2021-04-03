@@ -13,6 +13,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.vkpriesniakov.voicerecorder.databinding.FragmentRecordBinding
 
 class Utils {
+
+
+
     companion object {
 
         fun showSettingsSnackbar(
@@ -42,6 +45,5 @@ class Utils {
                 RECORD_PERMISSION
             ) == PackageManager.PERMISSION_GRANTED
         }
-
     }
 }

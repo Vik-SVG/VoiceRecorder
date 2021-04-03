@@ -1,20 +1,19 @@
-package com.vkpriesniakov.voicerecorder
+package com.vkpriesniakov.voicerecorder.ui.audio_list
 
-import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.vkpriesniakov.voicerecorder.adapters.AudioListAdapter
+import com.vkpriesniakov.voicerecorder.R
+import com.vkpriesniakov.voicerecorder.base.BaseFragment
 import com.vkpriesniakov.voicerecorder.databinding.FragmentAudioListBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -22,19 +21,20 @@ import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AudioListFragment : Fragment() {
+class AudioListFragment : BaseFragment(), AudioListView {
 
     @Inject
     lateinit var mAllFiles: Array<out File>
 
-    @Inject
-    lateinit var mMediaPlayer: MediaPlayer
+//    @Inject
+//    lateinit var mMediaPlayer: MediaPlayer
+
+    lateinit var mPresenter: AudioListPresenter<AudioListView>
 
     private lateinit var mBottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private var _binding: FragmentAudioListBinding? = null
     private val bdn get() = _binding!!
     private var isPlaying = false
-    private lateinit var mFileToPlay: File
 
     private var job: Job? = null
 
@@ -51,15 +51,19 @@ class AudioListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mPresenter = AudioListPresenterImpl()
+        mPresenter.onAttachPresenterFun(this)
 
         mAudioListAdapter =
-            AudioListAdapter(mAllFiles, context as Context, callback = { file, position ->
-                mFileToPlay = file
+            AudioListAdapter(mAllFiles, this, callback = { file, position ->
+
+                mPresenter.mPresenterFile = file
+
                 if (isPlaying) {
-                    stopAudio()
-                    playAudio(mFileToPlay)
+                    mPresenter.onStopAudio()
+                    mPresenter.onPlayAudio()
                 } else {
-                    playAudio(mFileToPlay)
+                    mPresenter.onPlayAudio()
                 }
             })
 
@@ -69,25 +73,22 @@ class AudioListFragment : Fragment() {
             adapter = mAudioListAdapter
         }
 
-        setupBottomSheet()
+        mPresenter.onSetupBottomSheet()
+
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (isPlaying) {
-            mMediaPlayer.apply {
-                stop()
-                reset()
-            }
-        }
+        mPresenter.onDetachMediaPlayer(isPlaying)
+        mPresenter.onDetachPresenterFun()
     }
 
     override fun onStop() {
         super.onStop()
-        stopAudio()
+        mPresenter.onStopAudio()
     }
 
-    private fun stopAudio() {
+    override fun stopAudio() {
 
         isPlaying = false
 
@@ -95,11 +96,7 @@ class AudioListFragment : Fragment() {
             job?.cancel()
         }
 
-        mMediaPlayer.apply {
-            stop()
-            reset()
-//            release()
-        }
+//        mPresenter.onStopMediaPlayer()
 
         bdn.playerSheetInclude.playButtonSheet.setImageDrawable(
             ResourcesCompat.getDrawable(
@@ -112,19 +109,11 @@ class AudioListFragment : Fragment() {
         bdn.playerSheetInclude.playerHeaderTitle.text = "Stop"
     }
 
-    private fun playAudio(file: File) {
+    override fun playAudio(file: File) {
 
         isPlaying = true
 
         mBottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
-
-
-        mMediaPlayer.apply {
-            reset()
-            setDataSource(file.absolutePath)
-            prepare()
-            start()
-        }
 
         bdn.playerSheetInclude.playButtonSheet.setImageDrawable(
             ResourcesCompat.getDrawable(
@@ -133,24 +122,21 @@ class AudioListFragment : Fragment() {
                 null
             )
         )
-        bdn.playerSheetInclude.textFileName.text = mFileToPlay.name
+        bdn.playerSheetInclude.textFileName.text = mPresenter.mPresenterFile?.name
         bdn.playerSheetInclude.playerHeaderTitle.text = "Playing"
 
-        updateJob()
+        mPresenter.onUpdateJob()
 
-        mMediaPlayer.setOnCompletionListener {
-            stopAudio()
+        bdn.playerSheetInclude.playerSeekbar.max = mPresenter.mMediaPlayer.duration
+        mPresenter.mMediaPlayer.setOnCompletionListener {
+            mPresenter.onStopAudio()
             bdn.playerSheetInclude.playerHeaderTitle.text = "Finished"
-            playAudio(mFileToPlay)
+            mPresenter.onPlayAudio()
         }
-
-        bdn.playerSheetInclude.playerSeekbar.max = mMediaPlayer.duration
-
     }
 
-    private fun pauseAudio() {
+    override fun pauseAudio() {
         job?.cancel()
-        mMediaPlayer.pause()
         bdn.playerSheetInclude.playerHeaderTitle.text = "Paused"
         bdn.playerSheetInclude.playButtonSheet.setImageDrawable(
             ResourcesCompat.getDrawable(
@@ -161,9 +147,7 @@ class AudioListFragment : Fragment() {
         )
     }
 
-    private fun resumeAudio() {
-        updateJob()
-        mMediaPlayer.start()
+    override fun resumeAudio() {
         bdn.playerSheetInclude.playerHeaderTitle.text = "Resumed"
         bdn.playerSheetInclude.playButtonSheet.setImageDrawable(
             ResourcesCompat.getDrawable(
@@ -174,10 +158,11 @@ class AudioListFragment : Fragment() {
         )
     }
 
-    private fun updateJob() {
+    override fun updateJob() {
         job = lifecycleScope.launch(Dispatchers.Main) {
             while (isPlaying) {
-                bdn.playerSheetInclude.playerSeekbar.progress = mMediaPlayer.currentPosition
+                bdn.playerSheetInclude.playerSeekbar.progress =
+                    mPresenter.mMediaPlayer.currentPosition
                 delay(200)
             }
         }
@@ -185,7 +170,7 @@ class AudioListFragment : Fragment() {
         job?.start()
     }
 
-    private fun setupBottomSheet() {
+    override fun setupBottomSheet() {
         mBottomSheetBehaviour = BottomSheetBehavior.from(bdn.playerSheetInclude.root).also {
 
             it.addBottomSheetCallback(object :
@@ -203,11 +188,12 @@ class AudioListFragment : Fragment() {
         }
 
         bdn.playerSheetInclude.playButtonSheet.setOnClickListener {
+
             if (isPlaying) {
-                pauseAudio()
+                mPresenter.onPauseAudio()
                 isPlaying = false
             } else {
-                resumeAudio()
+                mPresenter.onResumeAudio()
                 isPlaying = true
             }
         }
@@ -219,16 +205,14 @@ class AudioListFragment : Fragment() {
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                pauseAudio()
+                mPresenter.onPauseAudio()
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 val progress = seekBar?.progress
-                progress?.let { mMediaPlayer.seekTo(it) }
-                resumeAudio()
+                progress?.let { mPresenter.mMediaPlayer.seekTo(it) }
+                mPresenter.onResumeAudio()
             }
-
-
         })
     }
 }

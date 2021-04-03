@@ -7,12 +7,12 @@
 
     <fragment
         android:id="@+id/audioListFragment"
-        android:name="com.vkpriesniakov.voicerecorder.AudioListFragment"
+        android:name="com.vkpriesniakov.voicerecorder.ui.audio_list.AudioListFragment"
         android:label="fragment_audio_list"
         tools:layout="@layout/fragment_audio_list" />
     <fragment
         android:id="@+id/recordFragment"
-        android:name="com.vkpriesniakov.voicerecorder.RecordFragment"
+        android:name="com.vkpriesniakov.voicerecorder.ui.record.RecordFragment"
         android:label="fragment_record"
         tools:layout="@layout/fragment_record" >
         <action

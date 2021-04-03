@@ -1,4 +1,4 @@
-package com.vkpriesniakov.voicerecorder
+package com.vkpriesniakov.voicerecorder.ui.record
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -7,11 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import com.vkpriesniakov.voicerecorder.R
+import com.vkpriesniakov.voicerecorder.base.BaseFragment
 import com.vkpriesniakov.voicerecorder.databinding.FragmentRecordBinding
+import com.vkpriesniakov.voicerecorder.ui.audio_list.AudioListPresenter
+import com.vkpriesniakov.voicerecorder.ui.audio_list.AudioListView
 import com.vkpriesniakov.voicerecorder.utils.*
 import com.vkpriesniakov.voicerecorder.utils.Utils.Companion.checkIfPermissionGranted
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,12 +20,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RecordFragment : BaseFragment(), View.OnClickListener {
+class RecordFragment : BaseFragment(), View.OnClickListener{
 
 
     @Inject lateinit var recordController:RecordController
     @Inject lateinit var floatingButtonAnimator:AnimationControl
-
 
 
     private lateinit var mRecordFile: String
@@ -53,6 +53,7 @@ class RecordFragment : BaseFragment(), View.OnClickListener {
         mPermissionAllowed = checkIfPermissionGranted(context)
         bdn.recordListButton.setOnClickListener(this)
         bdn.recordFab.setOnClickListener(this)
+
 
 
     }

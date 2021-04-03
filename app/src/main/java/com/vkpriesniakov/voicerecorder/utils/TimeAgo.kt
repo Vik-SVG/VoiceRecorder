@@ -2,8 +2,9 @@ package com.vkpriesniakov.voicerecorder.utils
 
 import java.util.*
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class TimeAgo  {
+class TimeAgo @Inject constructor() {
 
     fun getTimeAgo(
         duration: Long
