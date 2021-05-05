@@ -1,38 +1,49 @@
 package com.vkpriesniakov.voicerecorder.ui.record
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import com.vkpriesniakov.voicerecorder.R
 import com.vkpriesniakov.voicerecorder.base.BaseFragment
 import com.vkpriesniakov.voicerecorder.databinding.FragmentRecordBinding
-import com.vkpriesniakov.voicerecorder.ui.audio_list.AudioListPresenter
-import com.vkpriesniakov.voicerecorder.ui.audio_list.AudioListView
 import com.vkpriesniakov.voicerecorder.utils.*
 import com.vkpriesniakov.voicerecorder.utils.Utils.Companion.checkIfPermissionGranted
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.subjects.BehaviorSubject
+import io.reactivex.rxjava3.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.Subject
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @AndroidEntryPoint
-class RecordFragment : BaseFragment(), View.OnClickListener{
+class RecordFragment : BaseFragment(), View.OnClickListener {
 
 
-    @Inject lateinit var recordController:RecordController
-    @Inject lateinit var floatingButtonAnimator:AnimationControl
+    private var isDarkerThemeEnabled: Boolean = true
 
+    @Inject
+    lateinit var recordController: RecordController
 
+    @Inject
+    lateinit var floatingButtonAnimator: AnimationControl
+
+    lateinit var mObservable: Subject<Boolean>
     private lateinit var mRecordFile: String
     private var mIsRecording: Boolean = false
     private var mPermissionAllowed = false
 
     private var _binding: FragmentRecordBinding? = null
 
+    lateinit var t: Observable<Boolean>
     // This property is only valid between onCreateView and
 // onDestroyView.
     private val bdn get() = _binding!!
@@ -50,10 +61,14 @@ class RecordFragment : BaseFragment(), View.OnClickListener{
     @SuppressLint("UnsafeExperimentalUsageError")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val nightModeFlags: Int = resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK
+
         mPermissionAllowed = checkIfPermissionGranted(context)
         bdn.recordListButton.setOnClickListener(this)
         bdn.recordFab.setOnClickListener(this)
-
+        bdn.enableDarkTheme.setOnClickListener(this)
 
 
     }
@@ -65,6 +80,10 @@ class RecordFragment : BaseFragment(), View.OnClickListener{
                 this.lifecycleScope.launch {
                     makeRecord()
                 }
+            }
+            bdn.enableDarkTheme.id -> {
+                AppCompatDelegate.setDefaultNightMode(if (isDarkerThemeEnabled) AppCompatDelegate.MODE_NIGHT_NO else (AppCompatDelegate.MODE_NIGHT_YES))
+                isDarkerThemeEnabled = !isDarkerThemeEnabled
             }
         }
     }

@@ -94,6 +94,9 @@ dependencies {
     //Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1"
 
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
+    implementation "io.reactivex.rxjava3:rxkotlin:3.0.1"
 
     //Kodein
 //    implementation 'org.kodein.di:kodein-di-framework-android-x:7.3.1'

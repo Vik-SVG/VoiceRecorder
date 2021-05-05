@@ -6,6 +6,27 @@
     android:layout_height="match_parent"
     tools:context=".ui.record.RecordFragment">
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/enable_dark_theme"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:paddingLeft="0dp"
+        android:paddingTop="0dp"
+        android:paddingRight="0dp"
+        android:paddingBottom="0dp"
+        app:cornerRadius="15dp"
+        app:icon="@drawable/ic_baseline_nights_stay_24"
+        app:iconGravity="textEnd"
+        app:iconPadding="0dp"
+        app:iconSize="30dp"
+        app:iconTint="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/record_header_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/record_header_image"
         android:layout_width="230dp"

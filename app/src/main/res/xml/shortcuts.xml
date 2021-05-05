@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_start_record"
+        android:shortcutDisabledMessage="@string/shortcut_text"
+        android:shortcutId="compose"
+        android:shortcutLongLabel="@string/shortcut_text"
+        android:shortcutShortLabel="@string/shortcut_text">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.vkpriesniakov.voicerecorder.ui.main.MainActivity"
+            android:targetPackage="com.vkpriesniakov.voicerecorder" />
+        <!-- If your shortcut is associated with multiple intents, include them
+             here. The last intent in the list determines what the user sees when
+             they launch this shortcut. -->
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+    <!-- Specify more shortcuts here. -->
+</shortcuts>
